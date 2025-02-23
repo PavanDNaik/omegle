@@ -17,5 +17,5 @@ func main() {
 	
 	http.Handle("/ws",websocket.Handler(myServer.HandleWebSocketConnection))
 	fmt.Println("Server listening on 5000")
-	http.ListenAndServe(":5000",nil)
+	http.ListenAndServe(":8080",nil)
 }
