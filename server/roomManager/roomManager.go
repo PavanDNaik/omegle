@@ -28,12 +28,12 @@ func(rm *RoomManager) isInRoom(ws *websocket.Conn) ( room.Room,bool) {
 func(rm *RoomManager) OnMessage(ws *websocket.Conn,msg []byte){
 	message := string(msg)
 
-	if strings.HasPrefix(message,"RTC"){
+	if strings.HasPrefix(message,"RTC_"){
 		existingRoom,ok := rm.isInRoom(ws)
 
 		if ok {
 			existingRoom.HandleMessage(ws,message)
-		}else {
+		} else {
 			rm.waiting[ws] = false
 			ws.Write([]byte ("room closed"))
 		}
@@ -41,7 +41,10 @@ func(rm *RoomManager) OnMessage(ws *websocket.Conn,msg []byte){
 	}else{
 		switch message{
 			case "new":rm.findMatch(ws)
-			default: fmt.Println(message)
+			default: {
+				fmt.Println("Unknown message")
+				// fmt.Println(message)
+			}
 		}
 	}
 
@@ -69,6 +72,8 @@ func(rm *RoomManager) findMatch(requestedClient *websocket.Conn){
 
 		if waitingClient == nil {
 			rm.waiting[requestedClient] = true
+			requestedClient.Write([]byte ("Waiting.."))
+			fmt.Print("Sent waiting Message");
 		} else {
 			newRoom := room.CreateRoom(requestedClient,waitingClient)
 
@@ -103,8 +108,8 @@ func(rm *RoomManager) OnClose(ws *websocket.Conn,err error){
 	// disconnect logic
 	existingRoom, ok := rm.isInRoom(ws)
 	if ok {
-		go existingRoom.CloseWithIgnore(ws)
 		rm.clean(&existingRoom)
+		go existingRoom.CloseWithIgnore(ws)
 	}
 	
 }

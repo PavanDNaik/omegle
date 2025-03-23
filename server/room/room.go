@@ -21,8 +21,8 @@ func CreateRoom(ws1 *websocket.Conn,ws2 *websocket.Conn) Room{
 }
 
 func(r *Room) Init(){
-	r.Client1.Write([]byte ("found room"))
-	r.Client2.Write([]byte ("found room"))
+	r.Client1.Write([]byte ("found room 1"))
+	r.Client2.Write([]byte ("found room 0"))
 }
 
 func(r *Room) CloseWithIgnore(ws *websocket.Conn){
@@ -40,11 +40,12 @@ func(r *Room) Close(){
 }
 
 
-func(rm *Room) HandleMessage(ws1 *websocket.Conn, msg string){
-	fmt.Println(msg)
-
-	switch msg{
-		case "new":
-		default: 
+func(r *Room) HandleMessage(ws1 *websocket.Conn, msg string){
+	if(r.Client1==ws1){
+		fmt.Println("Sending Client 1");
+		r.Client2.Write([]byte (msg))
+		}else{
+		fmt.Println("Sending Client 2");
+		r.Client1.Write([]byte (msg))
 	}
 }

@@ -18,18 +18,19 @@ type Server struct{
 
 
 func (s *Server) HandleWebSocketConnection(ws *websocket.Conn){
-	// fmt.Print("New Connection",ws.RemoteAddr())
+	fmt.Println("New Connection")
 	s.conns[ws] = true
 	s.readLoop(ws)
 }
 
 
 func (s *Server) readLoop(ws *websocket.Conn) {
+	var msg []byte
 
-	buf := make([]byte,2048)
-
+	buf := make([]byte,4096)
 	for {
 		n, err := ws.Read(buf)
+
 		if err != nil {
 
 			if err == io.EOF {
@@ -51,15 +52,22 @@ func (s *Server) readLoop(ws *websocket.Conn) {
 		}
 
 		s.mutex.Lock()
-		msg := buf[:n]
+		msg = append(msg, buf[:n]...)
 		s.mutex.Unlock()
 
-		if(s.onMessage != nil){
-			s.onMessage(ws,msg)
-		}else{
-			fmt.Println("No Message handler! found a message :")
+		fmt.Println(n)
+
+		if(n<4000){
 			fmt.Println(string(msg));
+			if(s.onMessage != nil){
+				s.onMessage(ws,msg)
+			}else{
+				fmt.Println("No Message handler! found a message :")
+				fmt.Println(string(msg));
+			}
+			msg = msg[:0]
 		}
+
 	}
 }
 

@@ -16,6 +16,6 @@ func main() {
 	myServer := socketServer.NewServer(rm,rm.OnMessage,rm.OnClose)
 	
 	http.Handle("/ws",websocket.Handler(myServer.HandleWebSocketConnection))
-	fmt.Println("Server listening on 5000")
+	fmt.Println("Server listening on 8080")
 	http.ListenAndServe(":8080",nil)
 }
