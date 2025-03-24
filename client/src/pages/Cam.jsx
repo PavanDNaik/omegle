@@ -130,9 +130,9 @@ function Cam() {
                     ]
                 },
                 { 
-                    urls:[ "turn:relay1.expressturn.com:3478"], 
-                    username: "efQE930WJUQ1B5GNUC", 
-                    credential: "M2GoUEV8qkK8xXp1" 
+                    urls:[ import.meta.env.VITE_APP_TURN_SERVER_URL], 
+                    username: import.meta.env.VITE_APP_TURN_SERVER_USER_NAME, 
+                    credential: import.meta.env.VITE_APP_TURN_SERVER_USER_CRED
                 }
             ]
         });
