@@ -76,9 +76,11 @@ function Cam() {
                             // });
                             await createAnswer(peerConnection.current);
                             peerState.current = 1;
-                            for(const ice of myICE.current){
-                                socketRef.current.send(ice);
-                            }
+                            setTimeout(()=>{
+                                for(const ice of myICE.current){
+                                    socketRef.current.send(ice);
+                                }
+                            },2000);
                         }else if(e.data.startsWith("RTC_ANSWER_")){
                             if(peerConnection.current){
                                 peerConnection.current.setRemoteDescription(JSON.parse(e.data.split("RTC_ANSWER_")[1]));

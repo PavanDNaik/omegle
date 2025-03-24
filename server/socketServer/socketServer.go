@@ -58,7 +58,7 @@ func (s *Server) readLoop(ws *websocket.Conn) {
 
 		// fmt.Println(n)
 
-		if(n<4000){
+		if(n<4088){
 			// fmt.Println(string(msg));
 			if(s.onMessage != nil){
 				s.onMessage(ws,msg)
