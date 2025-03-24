@@ -29,7 +29,7 @@ func (s *Server) readLoop(ws *websocket.Conn) {
 
 	buf := make([]byte,4096)
 	for {
-		fmt.Println("Waiting to read from WebSocket...");
+		// fmt.Println("Waiting to read from WebSocket...");
 		n, err := ws.Read(buf)
 
 		if err != nil {
@@ -56,10 +56,10 @@ func (s *Server) readLoop(ws *websocket.Conn) {
 		msg = append(msg, buf[:n]...)
 		s.mutex.Unlock()
 
-		fmt.Println(n)
+		// fmt.Println(n)
 
 		if(n<4000){
-			fmt.Println(string(msg));
+			// fmt.Println(string(msg));
 			if(s.onMessage != nil){
 				s.onMessage(ws,msg)
 			}else{

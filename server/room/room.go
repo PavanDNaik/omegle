@@ -1,8 +1,6 @@
 package room
 
 import (
-	"fmt"
-
 	"golang.org/x/net/websocket"
 )
 
@@ -42,10 +40,10 @@ func(r *Room) Close(){
 
 func(r *Room) HandleMessage(ws1 *websocket.Conn, msg string){
 	if(r.Client1==ws1){
-		fmt.Println("Sending Client 1");
+		// fmt.Println("Sending Client 1");
 		r.Client2.Write([]byte (msg))
 		}else{
-		fmt.Println("Sending Client 2");
+		// fmt.Println("Sending Client 2");
 		r.Client1.Write([]byte (msg))
 	}
 }

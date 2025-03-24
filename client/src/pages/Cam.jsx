@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-
-
+// import.meta.env.VIT
+const SOCKET_URL = import.meta.env.VITE_APP_SOCKET_BASE_URL
 function Cam() {
     const query = new URLSearchParams(window.location.search);
     const userName = query.get('name');
@@ -25,7 +25,7 @@ function Cam() {
     useEffect(()=>{
         let conn;
         initiatUserMedia().then(()=>{
-            conn = new WebSocket("ws://localhost:8080/ws");
+            conn = new WebSocket(`${SOCKET_URL}/ws`);
             socketRef.current = conn;
     
             conn.onopen = (e)=>{
