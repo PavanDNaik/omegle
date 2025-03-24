@@ -16,6 +16,9 @@ function Cam() {
     const localVideo = useRef();
     const remoteVideo = useRef();
 
+    const peerState = useRef(0);
+    const myICE = useRef([]);
+
     async function initiatUserMedia(){
         const mediaStream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
         localStream.current = mediaStream;
@@ -50,6 +53,8 @@ function Cam() {
                         break;
                     }
                     case "room closed":{
+                        peerState.current = 0;
+                        myICE.current = [];
                         if(peerConnection.current){
                             peerConnection.current.close();
                             peerConnection.current = null;
@@ -70,9 +75,17 @@ function Cam() {
                             //     peerConnection.current.addTrack(track,localStream.current);
                             // });
                             await createAnswer(peerConnection.current);
+                            peerState.current = 1;
+                            for(const ice of myICE.current){
+                                socketRef.current.send(ice);
+                            }
                         }else if(e.data.startsWith("RTC_ANSWER_")){
                             if(peerConnection.current){
                                 peerConnection.current.setRemoteDescription(JSON.parse(e.data.split("RTC_ANSWER_")[1]));
+                                peerState.current = 1;
+                                for(const ice of myICE.current){
+                                    socketRef.current.send(ice);
+                                }
                             }else{
                                 console.log("PEER connection not avaialable!");
                             }
@@ -99,6 +112,9 @@ function Cam() {
                 peerConnection.current = null;
                 socketRef.current = null;
             }
+            
+            peerState.current = 0;
+            myICE.current = [];
         }
     },[])
 
@@ -121,7 +137,11 @@ function Cam() {
         pConn.addEventListener("icecandidate",(e)=>{
             console.log("send it to server ICE",e);
             if(e.candidate){
-                socketRef.current.send("RTC_ICE_"+JSON.stringify(e.candidate));
+                if(peerState.current>0){
+                    socketRef.current.send("RTC_ICE_"+JSON.stringify(e.candidate));
+                }else{
+                    myICE.current.push("RTC_ICE_"+JSON.stringify(e.candidate));
+                }
             }
         });
         
