@@ -1,6 +1,8 @@
 package room
 
 import (
+	"fmt"
+
 	"golang.org/x/net/websocket"
 )
 
@@ -19,8 +21,12 @@ func CreateRoom(ws1 *websocket.Conn,ws2 *websocket.Conn) Room{
 }
 
 func(r *Room) Init(){
-	r.Client1.Write([]byte ("found room 1"))
-	r.Client2.Write([]byte ("found room 0"))
+	if(r.Client1 != nil && r.Client2 != nil){
+		r.Client1.Write([]byte ("found room 1"))
+		r.Client2.Write([]byte ("found room 0"))
+	}else{
+		fmt.Println("Unexpected Room with 1 or 0 clients")
+	}
 }
 
 func(r *Room) CloseWithIgnore(ws *websocket.Conn){

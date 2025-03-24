@@ -49,6 +49,13 @@ function Cam() {
                         const pConn = await createPeerConnection();
                         break;
                     }
+                    case "room closed":{
+                        if(peerConnection.current){
+                            peerConnection.current.close();
+                            peerConnection.current = null;
+                        }
+                        break;
+                    }
                     default:{
                         if(e.data.startsWith("RTC_ICE_")){
                             // console.log(e.data.split("RTC_ICE_"))
@@ -80,7 +87,17 @@ function Cam() {
 
         return ()=>{
             if(conn.OPEN){
-                conn.close();
+
+                if(peerConnection.current){
+                    peerConnection.current.close();
+                }
+
+                if(socketRef.current){
+                    socketRef.current.close()
+                }
+
+                peerConnection.current = null;
+                socketRef.current = null;
             }
         }
     },[])
@@ -121,7 +138,9 @@ function Cam() {
         remoteStream.current = tempRemoteMediaStream;
         remoteVideo.current.srcObject = tempRemoteMediaStream;
         localStream.current.getTracks().forEach(track => {
-            peerConnection.current.addTrack(track,localStream.current);
+            if(peerConnection.current){
+                peerConnection.current.addTrack(track,localStream.current); 
+            }
         });
 
         return pConn;
@@ -165,6 +184,13 @@ function Cam() {
         </div>
         <div>
             <video ref={remoteVideo} autoPlay playsInline></video>
+        </div>
+        <div>
+            <button onClick={(e)=>{
+                if(socketRef.current){
+                    socketRef.current.send("new");
+                }
+            }}>New</button>
         </div>
     </div>
   )

@@ -2,6 +2,7 @@ package roomManager
 
 import (
 	"fmt"
+	"math/rand/v2"
 	"server/room"
 	"strings"
 	"sync"
@@ -55,40 +56,59 @@ func(rm *RoomManager) OnMessage(ws *websocket.Conn,msg []byte){
 func(rm *RoomManager) findMatch(requestedClient *websocket.Conn){
 	
 	existingRoom, ok := rm.isInRoom(requestedClient)
+	var prevRoommate *websocket.Conn;
 
 	if ok {
-		go existingRoom.Close()
-		rm.clean(&existingRoom)
-	}else{
-		var waitingClient *websocket.Conn
-
-		for k,v := range rm.waiting {
-			if v {
-				waitingClient = k
-				break
-			}
+		if(existingRoom.Client1==requestedClient){
+			prevRoommate = existingRoom.Client2
+		}else{
+			prevRoommate = existingRoom.Client1
 		}
+	
+		existingRoom.Close()
+		rm.clean(&existingRoom)
+	}
 
-		if waitingClient == nil {
-			rm.mutex.Lock()
-			rm.waiting[requestedClient] = true
-			rm.mutex.Unlock()
-			requestedClient.Write([]byte ("Waiting.."))
-			fmt.Print("Sent waiting Message");
-		} else {
-			newRoom := room.CreateRoom(requestedClient,waitingClient)
-
-			rm.waiting[waitingClient] = false
-			rm.waiting[requestedClient] = false
-
-			rm.wsToRoom[requestedClient] = newRoom
-			rm.wsToRoom[waitingClient] = newRoom
-
-			// init webrtc
-			newRoom.Init()
+	
+	someWaitingClients := make([]*websocket.Conn,0)
+	count := 0
+	
+	rm.mutex.Lock()
+	
+	for k,v := range rm.waiting {
+		
+		if (v && k != prevRoommate && k != requestedClient) {
+			someWaitingClients = append(someWaitingClients, k)
+			count++
 		}
 		
+		if(count==100){
+			break;
+		}
 	}
+	
+	// fmt.Println(count)
+
+	if count==0 {
+		rm.waiting[requestedClient] = true
+		requestedClient.Write([]byte ("Waiting.."))
+	} else {
+		waitingClient := someWaitingClients[rand.IntN(count)]
+		// fmt.Println(waitingClient)
+		// fmt.Println(someWaitingClients)
+		newRoom := room.CreateRoom(requestedClient,waitingClient)
+
+		rm.waiting[waitingClient] = false
+		rm.waiting[requestedClient] = false
+
+		rm.wsToRoom[requestedClient] = newRoom
+		rm.wsToRoom[waitingClient] = newRoom
+
+		// init webrtc
+		newRoom.Init()
+	}
+		
+	rm.mutex.Unlock()
 
 }
 
@@ -111,8 +131,13 @@ func(rm *RoomManager) OnClose(ws *websocket.Conn,err error){
 	existingRoom, ok := rm.isInRoom(ws)
 	if ok {
 		rm.clean(&existingRoom)
-		go existingRoom.CloseWithIgnore(ws)
+		existingRoom.CloseWithIgnore(ws)
 	}
+
+	rm.mutex.Lock()
+	delete(rm.waiting,ws);
+	delete(rm.wsToRoom,ws);
+	rm.mutex.Unlock()
 	
 }
 
