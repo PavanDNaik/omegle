@@ -126,6 +126,11 @@ function Cam() {
                         "stun:stun.l.google.com:19302",
                         "stun:stun1.l.google.com:19302"
                     ]
+                },
+                { 
+                    urls: "turn:turn.anyfirewall.com:443?transport=tcp", 
+                    username: "webrtc", 
+                    credential: "webrtc" 
                 }
             ]
         });
