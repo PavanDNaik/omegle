@@ -204,16 +204,18 @@ function Cam() {
     };
 
   return (
-    <div>
+    <div className='container'>
         <div>Welcome </div>
-        <div>
-            <video ref={localVideo} autoPlay playsInline></video>
+        <div className='video-cover'>
+            <div className='local-video-container'>
+                <video ref={localVideo} autoPlay playsInline className='local-video'></video>
+            </div>
+            <div className='remote-video-container'>
+                <video ref={remoteVideo} autoPlay playsInline className='remote-video'> </video>
+            </div>
         </div>
-        <div>
-            <video ref={remoteVideo} autoPlay playsInline></video>
-        </div>
-        <div>
-            <button onClick={(e)=>{
+        <div className='Button cover'>
+            <button className='next-button' onClick={(e)=>{
                 if(socketRef.current){
                     socketRef.current.send("new");
                 }
