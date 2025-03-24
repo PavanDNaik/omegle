@@ -29,6 +29,7 @@ func (s *Server) readLoop(ws *websocket.Conn) {
 
 	buf := make([]byte,4096)
 	for {
+		fmt.Println("Waiting to read from WebSocket...");
 		n, err := ws.Read(buf)
 
 		if err != nil {
