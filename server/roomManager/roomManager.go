@@ -19,8 +19,8 @@ type RoomManager struct {
 
 func(rm *RoomManager) isInRoom(ws *websocket.Conn) ( room.Room,bool) {
 	rm.mutex.Lock()
-	defer rm.mutex.Unlock()
 	room,ok := rm.wsToRoom[ws]
+	rm.mutex.Unlock()
 
 	return room,ok
 }
@@ -34,7 +34,9 @@ func(rm *RoomManager) OnMessage(ws *websocket.Conn,msg []byte){
 		if ok {
 			existingRoom.HandleMessage(ws,message)
 		} else {
+			rm.mutex.Lock()
 			rm.waiting[ws] = false
+			rm.mutex.Unlock()
 			ws.Write([]byte ("room closed"))
 		}
 
@@ -58,9 +60,6 @@ func(rm *RoomManager) findMatch(requestedClient *websocket.Conn){
 		go existingRoom.Close()
 		rm.clean(&existingRoom)
 	}else{
-		rm.mutex.Lock()
-		defer rm.mutex.Unlock()
-
 		var waitingClient *websocket.Conn
 
 		for k,v := range rm.waiting {
@@ -71,7 +70,9 @@ func(rm *RoomManager) findMatch(requestedClient *websocket.Conn){
 		}
 
 		if waitingClient == nil {
+			rm.mutex.Lock()
 			rm.waiting[requestedClient] = true
+			rm.mutex.Unlock()
 			requestedClient.Write([]byte ("Waiting.."))
 			fmt.Print("Sent waiting Message");
 		} else {
@@ -94,7 +95,7 @@ func(rm *RoomManager) findMatch(requestedClient *websocket.Conn){
 func(rm *RoomManager) clean(room *room.Room){
 
 	rm.mutex.Lock()
-	defer rm.mutex.Unlock()
+	
 
 	delete(rm.wsToRoom,room.Client1)
 	delete(rm.wsToRoom,room.Client2)
@@ -102,6 +103,7 @@ func(rm *RoomManager) clean(room *room.Room){
 	rm.waiting[room.Client1] = true
 	rm.waiting[room.Client2] = true
 
+	rm.mutex.Unlock()
 }
 
 func(rm *RoomManager) OnClose(ws *websocket.Conn,err error){
