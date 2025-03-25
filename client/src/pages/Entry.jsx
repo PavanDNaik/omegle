@@ -19,7 +19,7 @@ function Entry() {
         <button 
           className="start-button"
           onClick={() => {
-            if (name && name.length>3) {
+            if (name && name.length>3 && name.length<20) {
               navigate(`/cam?name=${name}`);
             }
           }}

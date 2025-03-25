@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 // import.meta.env.VIT
 const SOCKET_URL = import.meta.env.VITE_APP_SOCKET_BASE_URL
 function Cam() {
     const query = new URLSearchParams(window.location.search);
     const userName = query.get('name');
-
+    const navigate = useNavigate();
     const socketRef = useRef();
     const peerConnection = useRef();
 
@@ -12,6 +13,7 @@ function Cam() {
     const [initiator ,setInitiator ] = useState(false);
     const [audio,setAudio] = useState(true);
     const [video,setVideo] = useState(true);
+    const [remoteUserName,setRemoteUserName] = useState("WAITING...");
 
     const localStream = useRef();
     const remoteStream = useRef();
@@ -28,6 +30,10 @@ function Cam() {
     }
     
     useEffect(()=>{
+        if(!userName || userName.length<3 || userName.length>20){
+            navigate("/");
+        }
+        
         let conn;
         initiatUserMedia().then(()=>{
             conn = new WebSocket(`${SOCKET_URL}/ws`);
@@ -47,11 +53,13 @@ function Cam() {
                         setInitiator(true);
                         const pConn = await createPeerConnection();
                         await createOffer(pConn);
+                        socketRef.current.send(`RTC_NAME_${userName}`);
                         break;
                     }
                     case "found room 0":{
                         setInitiator(false);
                         const pConn = await createPeerConnection();
+                        socketRef.current.send(`RTC_NAME_${userName}`);
                         break;
                     }
                     case "room closed":{
@@ -61,6 +69,7 @@ function Cam() {
                             peerConnection.current.close();
                             peerConnection.current = null;
                         }
+                        setRemoteUserName("WAITING...");
                         break;
                     }
                     default:{
@@ -93,6 +102,8 @@ function Cam() {
                             }else{
                                 console.log("PEER connection not avaialable!");
                             }
+                        }else if(e.data.startsWith("RTC_NAME_")){
+                            setRemoteUserName(e.data.split("RTC_NAME_")[1]);
                         }
                     }
                 }
@@ -207,7 +218,7 @@ function Cam() {
 
   return (
     <div className='container'>
-        <div>Welcome </div>
+        <div className='remote-user-name'>{remoteUserName}</div>
         <div className='video-cover'>
             <div className='local-video-container'>
                 <video ref={localVideo} autoPlay playsInline className='local-video' muted="true"></video>
