@@ -210,7 +210,7 @@ function Cam() {
         <div>Welcome </div>
         <div className='video-cover'>
             <div className='local-video-container'>
-                <video ref={localVideo} autoPlay playsInline className='local-video'></video>
+                <video ref={localVideo} autoPlay playsInline className='local-video' muted="true"></video>
             </div>
             <div className='remote-video-container'>
                 <video ref={remoteVideo} autoPlay playsInline className='remote-video'> </video>
