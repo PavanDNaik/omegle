@@ -10,6 +10,8 @@ function Cam() {
 
     const [isConnected,setConnected] = useState(false);
     const [initiator ,setInitiator ] = useState(false);
+    const [audio,setAudio] = useState(true);
+    const [video,setVideo] = useState(true);
 
     const localStream = useRef();
     const remoteStream = useRef();
@@ -215,6 +217,26 @@ function Cam() {
             </div>
         </div>
         <div className='Button cover'>
+            <div className='mut-unmute'>
+                    <button onClick={()=>{
+                        if(localStream.current){
+                            localStream.current.getAudioTracks()[0].enabled = !(localStream.current.getAudioTracks()[0].enabled);
+                            setAudio(!audio);
+                        }
+                    }}>
+                        {audio?"Mute Audio":"Start Audio"}
+                        </button>
+
+                    <button onClick={()=>{
+                        if(localStream.current){
+                            localStream.current.getVideoTracks()[0].enabled = !(localStream.current.getVideoTracks()[0].enabled);
+                            setVideo(!video);
+                        }
+                    }}>
+                        {video?"Mute video":"Start video"}
+                    </button>
+
+            </div>
             <button className='next-button' onClick={(e)=>{
                 if(socketRef.current){
                     socketRef.current.send("new");

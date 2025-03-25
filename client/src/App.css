@@ -44,6 +44,30 @@ body{
 
 .Button.cover {
     margin-top: 3vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2vw;
+}
+
+.mut-unmute {
+    display: flex;
+    gap: 1.5vw;
+}
+
+.mut-unmute button {
+    padding: 1.2vh 2.5vw;
+    font-size: 1.2vw;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.mut-unmute button:hover {
+    background-color: #218838;
 }
 
 .next-button {
@@ -59,6 +83,24 @@ body{
 
 .next-button:hover {
     background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .Button.cover {
+        /* flex-direction: column; */
+        gap: 4vh;
+    }
+
+    .mut-unmute {
+        /* flex-direction: column; */
+        gap: 2vh;
+    }
+
+    .mut-unmute button,
+    .next-button {
+        font-size: 4vw;
+        padding: 2vh 5vw;
+    }
 }
 
 

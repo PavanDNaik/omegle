@@ -25,6 +25,11 @@ func cronJob(){
 
 		c.AddFunc("@every 14m", func() {
 			fmt.Println("Every 14min request");
+			serverURL := os.Getenv("SERVER_URL")
+			if serverURL == "" {
+				fmt.Println("Error: SERVER_URL is not set or empty")
+				return
+			}
 			resp,err := http.Get(os.Getenv("SERVER_URL")+"/alive")
 
 			if err != nil {
